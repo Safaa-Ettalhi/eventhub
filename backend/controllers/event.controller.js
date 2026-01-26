@@ -132,3 +132,32 @@ export const updateEventStatus = async (req, res, next) => {
     client.release();
   }
 };
+
+export const deleteEvent = async (req, res, next) => {
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    const { id } = req.params;
+
+    const eventResult = await client.query('SELECT * FROM events WHERE id = $1', [id]);
+    if (eventResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    
+    await client.query('DELETE FROM registrations WHERE event_id = $1', [id]);
+
+   
+    await client.query('DELETE FROM events WHERE id = $1', [id]);
+
+    await client.query('COMMIT');
+    res.status(200).json({ message: 'Event deleted successfully' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    next(error);
+  } finally {
+    client.release();
+  }
+};
