@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -16,7 +16,8 @@ import {
   XCircle,
   Mail,
   Edit,
-  TrendingUp
+  TrendingUp,
+  Trash2
 } from 'lucide-react';
 
 const EventDetail = () => {
@@ -50,6 +51,25 @@ const EventDetail = () => {
       setRegistrations(response.data);
     } catch (err) {
       console.error('Error fetching registrations:', err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet événement ? Cette action supprimera également toutes les inscriptions associées et est irréversible.')) {
+      return;
+    }
+
+    setDeleting(true);
+    setError('');
+    try {
+      await api.delete(`/events/${id}`);
+      setSuccess('Événement supprimé avec succès !');
+      setTimeout(() => {
+        navigate('/events');
+      }, 1500);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Erreur lors de la suppression');
+      setDeleting(false);
     }
   };
 
@@ -126,6 +146,20 @@ const EventDetail = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-5 py-4 rounded-xl animate-slideIn flex items-center shadow-lg">
+          <AlertCircle className="w-5 h-5 mr-3 animate-pulse" />
+          <span className="font-semibold">{error}</span>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-5 py-4 rounded-xl animate-bounce-in flex items-center shadow-lg">
+          <CheckCircle2 className="w-5 h-5 mr-3 animate-pulse" />
+          <span className="font-bold">{success}</span>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <Link
           to="/events"
@@ -135,13 +169,32 @@ const EventDetail = () => {
           Retour à la liste
         </Link>
         {canEdit && (
-          <Link
-            to={`/events/${id}/edit`}
-            className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1"
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Modifier
-          </Link>
+          <div className="flex items-center space-x-3">
+            <Link
+              to={`/events/${id}/edit`}
+              className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Modifier
+            </Link>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Suppression...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Supprimer
+                </>
+              )}
+            </button>
+          </div>
         )}
       </div>
 
