@@ -41,6 +41,10 @@ const Events = () => {
     }
   };
 
+  const handleEventDelete = (deletedEventId) => {
+    setEvents(events.filter(event => event.id !== deletedEventId));
+  };
+
   const filteredEvents = events.filter(event => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
@@ -172,7 +176,7 @@ const Events = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.map((event, index) => (
-              <EventCard key={event.id} event={event} index={index} />
+              <EventCard key={event.id} event={event} index={index} onDelete={handleEventDelete} />
             ))}
           </div>
         </>
