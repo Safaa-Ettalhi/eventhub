@@ -1,10 +1,36 @@
-import { Link } from 'react-router-dom';
-import { MapPin, Calendar, Users, ArrowRight, Sparkles, Edit } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { MapPin, Calendar, Users, ArrowRight, Sparkles, Edit, Trash2, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import { useState } from 'react';
 
-const EventCard = ({ event, index = 0 }) => {
+const EventCard = ({ event, index = 0, onDelete }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
   const canEdit = user?.role === 'admin' || user?.role === 'staff';
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${event.title}" ? Cette action supprimera également toutes les inscriptions associées et est irréversible.`)) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await api.delete(`/events/${event.id}`);
+      if (onDelete) {
+        onDelete(event.id);
+      } else {
+        navigate('/events');
+      }
+    } catch (err) {
+      alert(err.response?.data?.error || 'Erreur lors de la suppression');
+      setDeleting(false);
+    }
+  };
 
   const getStatusBadge = (status) => {
     const styles = {
@@ -80,13 +106,28 @@ const EventCard = ({ event, index = 0 }) => {
             <Sparkles className="absolute right-4 w-4 h-4 text-white/50 group-hover/btn:text-white group-hover/btn:animate-pulse" />
           </Link>
           {canEdit && (
-            <Link
-              to={`/events/${event.id}/edit`}
-              className="flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold transition-all duration-300 text-sm shadow-md hover:shadow-lg transform hover:-translate-y-1 hover:bg-gray-200 dark:hover:bg-slate-600"
-              title="Modifier"
-            >
-              <Edit className="w-4 h-4" />
-            </Link>
+            <>
+              <Link
+                to={`/events/${event.id}/edit`}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold transition-all duration-300 text-sm shadow-md hover:shadow-lg transform hover:-translate-y-1 hover:bg-gray-200 dark:hover:bg-slate-600"
+                title="Modifier"
+              >
+                <Edit className="w-4 h-4" />
+              </Link>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex items-center justify-center py-2.5 px-4 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl font-bold transition-all duration-300 text-sm shadow-md hover:shadow-lg transform hover:-translate-y-1 hover:bg-red-200 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Supprimer"
+              >
+                {deleting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+              </button>
+            </>
           )}
         </div>
       </div>
