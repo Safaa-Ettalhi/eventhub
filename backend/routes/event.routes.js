@@ -5,6 +5,7 @@ import {
   getEventById,
   updateEvent,
   updateEventStatus,
+  deleteEvent,
 } from '../controllers/event.controller.js';
 import { authenticate, authorize } from '../middleware/auth.middleware.js';
 import { validate } from '../utils/validation.js';
@@ -21,5 +22,6 @@ router.get('/:id', getEventById);
 
 router.put('/:id', authorize('admin', 'staff'), validate(eventUpdateSchema), updateEvent);
 router.patch('/:id/status', authorize('admin', 'staff'), validate(eventStatusSchema), updateEventStatus);
+router.delete('/:id', authorize('admin', 'staff'), deleteEvent);
 
 export default router;
