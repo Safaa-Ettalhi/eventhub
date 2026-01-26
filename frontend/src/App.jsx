@@ -80,7 +80,6 @@ function App() {
               <Route path="events/:id" element={<EventDetail />} />
               <Route path="events/:id/edit" element={<StaffRoute><CreateEvent /></StaffRoute>} />
               <Route path="participants" element={<Participants />} />
-              <Route path="register" element={<RegisterParticipant />} />
               <Route
                 path="registrations"
                 element={

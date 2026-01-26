@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import Confetti from '../components/Confetti';
 import { 
@@ -14,8 +14,7 @@ import {
   Calendar,
   BarChart3,
   CheckCircle2,
-  X,
-  Sparkles
+  X
 } from 'lucide-react';
 
 const Participants = () => {
@@ -23,7 +22,6 @@ const Participants = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [search, setSearch] = useState('');
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [registrationLoading, setRegistrationLoading] = useState(false);
@@ -34,34 +32,39 @@ const Participants = () => {
     status: 'pending',
   });
 
-  useEffect(() => {
-    fetchParticipants();
-    if (showRegistrationForm) {
-      fetchEvents();
-    }
-  }, [search, showRegistrationForm]);
-
-  const fetchParticipants = async () => {
+  const fetchParticipants = useCallback(async () => {
     try {
       setLoading(true);
       const params = search ? { search } : {};
       const response = await api.get('/participants', { params });
       setParticipants(response.data);
+      setError('');
     } catch (err) {
       setError(err.response?.data?.error || 'Erreur lors du chargement');
     } finally {
       setLoading(false);
     }
-  };
+  }, [search]);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       const response = await api.get('/events', { params: { status: 'published' } });
       setEvents(response.data);
     } catch (err) {
       console.error('Error fetching events:', err);
+      setError('Erreur lors du chargement des événements');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchParticipants();
+  }, [fetchParticipants]);
+
+  useEffect(() => {
+    if (showRegistrationForm) {
+      fetchEvents();
+    }
+  }, [showRegistrationForm, fetchEvents]);
 
   const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
@@ -103,7 +106,7 @@ const Participants = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      <Confetti show={registrationSuccess} />
+      {registrationSuccess && <Confetti show={registrationSuccess} />}
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="relative">
