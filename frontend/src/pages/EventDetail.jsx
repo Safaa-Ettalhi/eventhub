@@ -22,11 +22,14 @@ import {
 
 const EventDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [event, setEvent] = useState(null);
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [deleting, setDeleting] = useState(false);
   const canEdit = user?.role === 'admin' || user?.role === 'staff';
 
   useEffect(() => {
@@ -125,7 +128,11 @@ const EventDetail = () => {
     );
   }
 
-  if (error || !event) {
+  if (loading) {
+    return null; 
+  }
+
+  if (error && !event) {
     return (
       <div className="text-center py-16">
         <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -141,12 +148,16 @@ const EventDetail = () => {
     );
   }
 
+  if (!event) {
+    return null;
+  }
+
   const confirmedCount = registrations.filter(r => r.status === 'confirmed' || r.status === 'pending').length;
   const fillPercentage = event.max_participants > 0 ? Math.round((confirmedCount / event.max_participants) * 100) : 0;
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      {error && (
+      {error && event && (
         <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-5 py-4 rounded-xl animate-slideIn flex items-center shadow-lg">
           <AlertCircle className="w-5 h-5 mr-3 animate-pulse" />
           <span className="font-semibold">{error}</span>
