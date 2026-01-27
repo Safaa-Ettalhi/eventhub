@@ -88,9 +88,8 @@ const seed = async () => {
       createdEvents.push(result.rows[0]);
     }
 
-    console.log('✅ Events created');
+    console.log(' Events created');
 
-    // Create participants (noms marocains)
     const participants = [
       {
         fullName: 'Youssef Alaoui',
@@ -155,11 +154,9 @@ const seed = async () => {
       createdParticipants.push(result.rows[0]);
     }
 
-    console.log('✅ Participants created');
+    console.log(' Participants created');
 
-    // Create registrations
     const registrations = [
-      // Festival Fès - 8 inscriptions
       { eventId: createdEvents[0].id, participantId: createdParticipants[0].id, status: 'confirmed' },
       { eventId: createdEvents[0].id, participantId: createdParticipants[1].id, status: 'confirmed' },
       { eventId: createdEvents[0].id, participantId: createdParticipants[2].id, status: 'pending' },
@@ -169,24 +166,21 @@ const seed = async () => {
       { eventId: createdEvents[0].id, participantId: createdParticipants[6].id, status: 'confirmed' },
       { eventId: createdEvents[0].id, participantId: createdParticipants[7].id, status: 'confirmed' },
       
-      // Conférence Tech Casablanca - 5 inscriptions
       { eventId: createdEvents[1].id, participantId: createdParticipants[0].id, status: 'confirmed' },
       { eventId: createdEvents[1].id, participantId: createdParticipants[2].id, status: 'confirmed' },
       { eventId: createdEvents[1].id, participantId: createdParticipants[6].id, status: 'pending' },
       { eventId: createdEvents[1].id, participantId: createdParticipants[8].id, status: 'confirmed' },
       { eventId: createdEvents[1].id, participantId: createdParticipants[9].id, status: 'confirmed' },
       
-      // Salon du Livre Rabat - 4 inscriptions
       { eventId: createdEvents[2].id, participantId: createdParticipants[1].id, status: 'confirmed' },
       { eventId: createdEvents[2].id, participantId: createdParticipants[3].id, status: 'confirmed' },
       { eventId: createdEvents[2].id, participantId: createdParticipants[5].id, status: 'pending' },
       { eventId: createdEvents[2].id, participantId: createdParticipants[7].id, status: 'confirmed' },
       
-      // Workshop Marrakech - 2 inscriptions (draft, donc pas d'inscriptions normalement, mais pour les tests)
+
       { eventId: createdEvents[3].id, participantId: createdParticipants[4].id, status: 'pending' },
       { eventId: createdEvents[3].id, participantId: createdParticipants[8].id, status: 'pending' },
-      
-      // Festival Essaouira - 1 inscription (cancelled, donc cancelled aussi)
+
       { eventId: createdEvents[4].id, participantId: createdParticipants[9].id, status: 'cancelled' },
     ];
 
@@ -198,10 +192,10 @@ const seed = async () => {
       );
     }
 
-    console.log('✅ Registrations created');
+    console.log(' Registrations created');
 
     console.log('\n🎉 Database seeding completed successfully!');
-    console.log('\n📊 Summary:');
+    console.log('\n Summary:');
     console.log(`   - Users: 2 (1 admin, 1 staff)`);
     console.log(`   - Events: ${createdEvents.length} (${events.filter(e => e.status === 'published').length} published, ${events.filter(e => e.status === 'draft').length} draft, ${events.filter(e => e.status === 'cancelled').length} cancelled)`);
     console.log(`   - Participants: ${createdParticipants.length}`);
@@ -210,7 +204,7 @@ const seed = async () => {
     console.log('   Admin: admin@eventhub.ma / password123');
     console.log('   Staff: staff@eventhub.ma / password123');
   } catch (error) {
-    console.error('❌ Error seeding database:', error);
+    console.error(' Error seeding database:', error);
     process.exit(1);
   } finally {
     await pool.end();
